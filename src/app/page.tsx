@@ -1,69 +1,146 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState, useEffect } from 'react'
+import { useRole } from '@/context/RoleContext'
+import CreateOrderModal from '@/components/CreateOrderModal'
+import { Plus, Scissors, CheckCircle2, Factory } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
+export default function Dashboard() {
+  const { user } = useRole()
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [orders, setOrders] = useState<any[]>([])
+  const supabase = createClient()
+
+  const fetchOrders = async () => {
+    const { data } = await fetch('/api/orders').then(res => res.json())
+    if (data) setOrders(data)
+    else {
+      // Direct supabase fetch as fallback if API route has issues parsing
+      const res = await supabase.from('cutting_orders').select(`
+        *,
+        recipe:recipes(name, recipe_code),
+        creator:users!cutting_orders_created_by_fkey(full_name)
+      `).order('created_at', { ascending: false })
+      if (res.data) setOrders(res.data)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ApparelFlow ERP</h1>
+        <p className="text-gray-500 mt-2 text-lg">Welcome back, <span className="font-semibold text-gray-800">{user.full_name}</span> ({user.role})</p>
+      </header>
+
+      {user.role === 'cutting_supervisor' && (
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <Scissors className="w-5 h-5 text-blue-600" />
+                Cutting Operations
+              </h2>
+              <p className="text-gray-500 mt-1">Manage production recipes and create new cutting batches.</p>
+            </div>
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-all flex items-center gap-2"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+              <Plus className="w-5 h-5" />
+              New Batch
+            </button>
+          </div>
+        </section>
+      )}
+
+      {user.role === 'cutting_verifier' && (
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-amber-500" />
+              Verification Terminal
+            </h2>
+            <p className="text-gray-500 mt-1">Review pending cutting batches and count components.</p>
+            {/* We will build the verifier queue in Day 3 */}
+            <div className="mt-4 p-4 bg-amber-50 text-amber-800 rounded-xl border border-amber-200">
+              Verifier interface will be implemented in Day 3.
+            </div>
+          </div>
+        </section>
+      )}
+
+      {user.role === 'sewing_supervisor' && (
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Factory className="w-5 h-5 text-emerald-600" />
+              Sewing Queue
+            </h2>
+            <p className="text-gray-500 mt-1">Batches ready for sewing assembly.</p>
+            {/* We will build the sewing queue in Day 4 */}
+            <div className="mt-4 p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200">
+              Sewing queue interface will be implemented in Day 4.
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Orders List for Supervisor */}
+      {user.role === 'cutting_supervisor' && (
+        <section>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Cutting Batches</h3>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
+                  <th className="py-3 px-4 font-semibold">Order No</th>
+                  <th className="py-3 px-4 font-semibold">Recipe</th>
+                  <th className="py-3 px-4 font-semibold">Target Qty</th>
+                  <th className="py-3 px-4 font-semibold">Status</th>
+                  <th className="py-3 px-4 font-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-gray-500">No orders found. Create one above!</td>
+                  </tr>
+                ) : (
+                  orders.map(order => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-3 px-4 font-medium text-gray-900">{order.order_no}</td>
+                      <td className="py-3 px-4 text-gray-600">{order.recipe?.name} ({order.recipe?.recipe_code})</td>
+                      <td className="py-3 px-4 text-gray-600">{order.target_qty} units</td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                          ${order.status === 'PENDING_VERIFICATION' ? 'bg-amber-100 text-amber-800' : ''}
+                          ${order.status === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' : ''}
+                          ${order.status === 'REJECTED' ? 'bg-red-100 text-red-800' : ''}
+                          ${order.status === 'CUTTING_IN_PROGRESS' ? 'bg-blue-100 text-blue-800' : ''}
+                        `}>
+                          {order.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-gray-500 text-sm">{new Date(order.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      <CreateOrderModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        onSuccess={fetchOrders}
+      />
     </div>
-  );
+  )
 }
