@@ -101,7 +101,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
         verifier_id: userId,
         decision: decision,
         rejection_note: decision === 'REJECTED' ? rejection_note : null,
-        wastage_pct: wastagePct
+        wastage_pct: wastagePct,
+        component_variances: itemsToUpdate
       })
 
     if (logError) throw logError

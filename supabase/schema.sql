@@ -75,6 +75,7 @@ CREATE TABLE verification_logs (
     decision verification_decision NOT NULL,
     rejection_note TEXT,
     wastage_pct NUMERIC(10, 2),
+    component_variances JSONB,
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

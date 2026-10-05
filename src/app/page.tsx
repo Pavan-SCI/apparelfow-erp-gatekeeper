@@ -27,6 +27,21 @@ export default function Dashboard() {
     }
   }
 
+  const handleResubmit = async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/resubmit`, {
+        method: 'POST'
+      })
+      if (res.ok) {
+        fetchOrders()
+      } else {
+        alert("Failed to resubmit order.")
+      }
+    } catch (err) {
+      alert("Error resubmitting order.")
+    }
+  }
+
   useEffect(() => {
     fetchOrders()
   }, [])
@@ -131,6 +146,14 @@ export default function Dashboard() {
                         `}>
                           {order.status.replace('_', ' ')}
                         </span>
+                        {order.status === 'REJECTED' && (
+                          <button 
+                            onClick={() => handleResubmit(order.id)}
+                            className="ml-3 text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
+                          >
+                            Re-submit
+                          </button>
+                        )}
                       </td>
                       <td className="py-3 px-4 text-gray-500 text-sm">{new Date(order.created_at).toLocaleDateString()}</td>
                     </tr>
