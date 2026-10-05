@@ -43,17 +43,19 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined)
 export function RoleProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(DEMO_USERS.cutting_supervisor)
 
-  // Persist demo user in localStorage for testing
+  // Persist demo user in localStorage and cookie for testing
   useEffect(() => {
-    const savedUser = localStorage.getItem('demo_user_role')
-    if (savedUser && DEMO_USERS[savedUser as UserRole]) {
-      setUser(DEMO_USERS[savedUser as UserRole])
-    }
+    const savedUserId = localStorage.getItem('demo_user_id')
+    const initialUser = Object.values(DEMO_USERS).find(u => u.id === savedUserId) || DEMO_USERS.cutting_supervisor
+    setUser(initialUser)
+    document.cookie = `demo_user_id=${initialUser.id}; path=/; max-age=86400`
   }, [])
 
   const handleSetUser = (newUser: User) => {
     setUser(newUser)
-    localStorage.setItem('demo_user_role', newUser.role)
+    localStorage.setItem('demo_user_id', newUser.id)
+    // Set cookie for Server-Side RBAC simulation
+    document.cookie = `demo_user_id=${newUser.id}; path=/; max-age=86400`
   }
 
   return (

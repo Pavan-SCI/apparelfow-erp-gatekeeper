@@ -96,8 +96,7 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
           recipe_id: selectedRecipeId,
           target_qty: qty,
           fabric_roll_id: fabricRollId,
-          actual_fabric_yds: fabric,
-          user_id: user.id
+          actual_fabric_yds: fabric
         })
       })
 

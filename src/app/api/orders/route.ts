@@ -1,21 +1,30 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+import { cookies } from 'next/headers'
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const body = await request.json()
-    const { recipe_id, target_qty, fabric_roll_id, actual_fabric_yds, user_id } = body
+    const cookieStore = await cookies()
+    const userId = cookieStore.get('demo_user_id')?.value
 
-    if (!recipe_id || !target_qty || !fabric_roll_id || !actual_fabric_yds || !user_id) {
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized: No active session' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { recipe_id, target_qty, fabric_roll_id, actual_fabric_yds } = body
+
+    if (!recipe_id || !target_qty || !fabric_roll_id || !actual_fabric_yds) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Server-side RBAC: Only cutting_supervisor can create orders
+    // Server-side RBAC
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('role')
-      .eq('id', user_id)
+      .eq('id', userId)
       .single()
 
     if (userError || !user) {
@@ -47,7 +56,7 @@ export async function POST(request: Request) {
         target_qty,
         fabric_roll_id,
         actual_fabric_yds,
-        created_by: user_id,
+        created_by: userId,
         status: 'PENDING_VERIFICATION' // Immediately goes to verification queue
       })
       .select()
