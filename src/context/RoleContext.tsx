@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export type UserRole = 'cutting_supervisor' | 'cutting_verifier' | 'sewing_supervisor'
 
@@ -11,10 +12,10 @@ interface User {
   full_name: string
 }
 
-// Demo users from our seed data
+// Demo users mapped to their Auth emails
 export const DEMO_USERS: Record<UserRole, User> = {
   cutting_supervisor: {
-    id: '33333333-3333-3333-3333-333333333333',
+    id: '33333333-3333-3333-3333-333333333333', // Temporary visual ID
     email: 'supervisor@apparelflow.com',
     role: 'cutting_supervisor',
     full_name: 'John Supervisor',
@@ -34,32 +35,55 @@ export const DEMO_USERS: Record<UserRole, User> = {
 }
 
 interface RoleContextType {
-  user: User
-  setUser: (user: User) => void
+  user: User | null
+  setUser: (user: User) => Promise<void>
+  isLoading: boolean
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined)
 
 export function RoleProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>(DEMO_USERS.cutting_supervisor)
+  const [user, setUserState] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const supabase = createClient()
 
-  // Persist demo user in localStorage and cookie for testing
   useEffect(() => {
-    const savedUserId = localStorage.getItem('demo_user_id')
-    const initialUser = Object.values(DEMO_USERS).find(u => u.id === savedUserId) || DEMO_USERS.cutting_supervisor
-    setUser(initialUser)
-    document.cookie = `demo_user_id=${initialUser.id}; path=/; max-age=86400`
+    // Check active Supabase session on load
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        // Find matching demo user by email
+        const activeUser = Object.values(DEMO_USERS).find(u => u.email === session.user.email)
+        if (activeUser) {
+          // Update visual ID to match real Auth ID
+          setUserState({ ...activeUser, id: session.user.id })
+        }
+      } else {
+        // Auto-login to Supervisor as default for demo if no session
+        handleSetUser(DEMO_USERS.cutting_supervisor)
+      }
+      setIsLoading(false)
+    }
+
+    checkSession()
   }, [])
 
-  const handleSetUser = (newUser: User) => {
-    setUser(newUser)
-    localStorage.setItem('demo_user_id', newUser.id)
-    // Set cookie for Server-Side RBAC simulation
-    document.cookie = `demo_user_id=${newUser.id}; path=/; max-age=86400`
+  const handleSetUser = async (newUser: User) => {
+    setIsLoading(true)
+    // REAL AUTHENTICATION: Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: newUser.email,
+      password: 'password123',
+    })
+    
+    if (!error && data.session) {
+      setUserState({ ...newUser, id: data.session.user.id })
+    }
+    setIsLoading(false)
   }
 
   return (
-    <RoleContext.Provider value={{ user, setUser: handleSetUser }}>
+    <RoleContext.Provider value={{ user, setUser: handleSetUser, isLoading }}>
       {children}
     </RoleContext.Provider>
   )

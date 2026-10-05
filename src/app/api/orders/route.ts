@@ -1,17 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-import { cookies } from 'next/headers'
-
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const cookieStore = await cookies()
-    const userId = cookieStore.get('demo_user_id')?.value
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
 
-    if (!userId) {
+    if (authError || !authUser) {
       return NextResponse.json({ error: 'Unauthorized: No active session' }, { status: 401 })
     }
+
+    const userId = authUser.id
 
     const body = await request.json()
     const { recipe_id, target_qty, fabric_roll_id, actual_fabric_yds } = body

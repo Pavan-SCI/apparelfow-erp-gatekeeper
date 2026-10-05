@@ -68,6 +68,11 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
     e.preventDefault()
     setError('')
 
+    if (!user) {
+      setError('You must be logged in.')
+      return
+    }
+
     if (user.role !== 'cutting_supervisor') {
       setError('Only Cutting Supervisors can create orders.')
       return
