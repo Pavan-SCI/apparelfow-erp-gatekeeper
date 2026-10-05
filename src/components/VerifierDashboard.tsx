@@ -3,10 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Clock, ChevronRight } from 'lucide-react'
+import VerificationTerminalModal from './VerificationTerminalModal'
 
 export default function VerifierDashboard() {
   const [pendingOrders, setPendingOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedOrder, setSelectedOrder] = useState<any>(null)
+  
   const supabase = createClient()
 
   useEffect(() => {
@@ -69,7 +72,10 @@ export default function VerifierDashboard() {
                 </p>
               </div>
               
-              <button className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gray-50 hover:bg-amber-50 text-gray-700 hover:text-amber-700 rounded-lg font-medium text-sm transition-colors border border-gray-100 group-hover:border-amber-200">
+              <button 
+                onClick={() => setSelectedOrder(order)}
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gray-50 hover:bg-amber-50 text-gray-700 hover:text-amber-700 rounded-lg font-medium text-sm transition-colors border border-gray-100 group-hover:border-amber-200"
+              >
                 Start Verification
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -77,6 +83,16 @@ export default function VerifierDashboard() {
           ))}
         </div>
       )}
+
+      <VerificationTerminalModal 
+        order={selectedOrder}
+        isOpen={!!selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+        onSuccess={() => {
+          setSelectedOrder(null)
+          fetchPendingOrders() // refresh list
+        }}
+      />
     </div>
   )
 }
