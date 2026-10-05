@@ -5,6 +5,7 @@ import { useRole } from '@/context/RoleContext'
 import CreateOrderModal from '@/components/CreateOrderModal'
 import { Plus, Scissors, CheckCircle2, Factory } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import VerifierDashboard from '@/components/VerifierDashboard'
 
 export default function Dashboard() {
   const { user } = useRole()
@@ -66,10 +67,7 @@ export default function Dashboard() {
               Verification Terminal
             </h2>
             <p className="text-gray-500 mt-1">Review pending cutting batches and count components.</p>
-            {/* We will build the verifier queue in Day 3 */}
-            <div className="mt-4 p-4 bg-amber-50 text-amber-800 rounded-xl border border-amber-200">
-              Verifier interface will be implemented in Day 3.
-            </div>
+            <VerifierDashboard />
           </div>
         </section>
       )}
