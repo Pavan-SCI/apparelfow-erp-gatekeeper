@@ -1,35 +1,26 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Scissors, CheckCircle, ShieldCheck, Loader2 } from 'lucide-react'
+import useSWR from 'swr'
 
 export default function SewingDashboard() {
-  const [orders, setOrders] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [startingOrderId, setStartingOrderId] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchQueue()
-  }, [])
-
-  const fetchQueue = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/sewing/queue')
-      if (!res.ok) {
-        if (res.status === 403) throw new Error('Access denied. Only Sewing Supervisors can view this queue.')
-        throw new Error('Failed to load sewing queue.')
-      }
-      const { data } = await res.json()
-      setOrders(data || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+  const fetcher = async () => {
+    const res = await fetch('/api/sewing/queue')
+    if (!res.ok) {
+      if (res.status === 403) throw new Error('Access denied. Only Sewing Supervisors can view this queue.')
+      throw new Error('Failed to load sewing queue.')
     }
+    const { data } = await res.json()
+    return data || []
   }
+
+  const { data: orders, error, mutate } = useSWR('sewing-queue', fetcher, {
+    revalidateOnFocus: true,
+    refreshInterval: 10000 // Keep queue fresh
+  })
 
   const handleStartAssembly = (orderId: string) => {
     setStartingOrderId(orderId)
@@ -37,10 +28,11 @@ export default function SewingDashboard() {
     setTimeout(() => {
       alert(`Assembly started for batch ${orderId}! (Demo)`)
       setStartingOrderId(null)
+      mutate() // Refresh queue after starting
     }, 1000)
   }
 
-  if (loading) {
+  if (!orders && !error) {
     return (
       <div className="flex justify-center items-center py-20 text-gray-500">
         <Loader2 className="w-8 h-8 animate-spin" />

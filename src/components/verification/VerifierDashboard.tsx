@@ -1,23 +1,17 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Clock, ChevronRight } from 'lucide-react'
 import VerificationTerminalModal from './VerificationTerminalModal'
+import useSWR from 'swr'
 
 export default function VerifierDashboard() {
-  const [pendingOrders, setPendingOrders] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   
   const supabase = createClient()
 
-  useEffect(() => {
-    fetchPendingOrders()
-  }, [])
-
-  const fetchPendingOrders = async () => {
-    setLoading(true)
+  const fetcher = async () => {
     const { data, error } = await supabase
       .from('cutting_orders')
       .select(`
@@ -28,11 +22,16 @@ export default function VerifierDashboard() {
       .eq('status', 'PENDING_VERIFICATION')
       .order('created_at', { ascending: true })
     
-    if (data) setPendingOrders(data)
-    setLoading(false)
+    if (error) throw error
+    return data
   }
 
-  if (loading) {
+  const { data: pendingOrders, error, mutate } = useSWR('pending-orders', fetcher, {
+    revalidateOnFocus: true,
+    refreshInterval: 10000 // Poll every 10s to keep queue fresh for verifiers
+  })
+
+  if (!pendingOrders && !error) {
     return <div className="text-gray-500 animate-pulse mt-4">Loading pending batches...</div>
   }
 
