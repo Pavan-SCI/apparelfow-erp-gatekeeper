@@ -12,6 +12,7 @@ import SewingDashboard from '@/components/sewing/SewingDashboard'
 import RoleSwitcher from '@/components/auth/RoleSwitcher'
 
 import AnalyticsCards from '@/components/AnalyticsCards'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function Dashboard() {
   const { user } = useRole()
@@ -52,13 +53,14 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
-      <header className="mb-10 backdrop-blur-sm bg-white/50 p-6 rounded-3xl border border-white shadow-sm flex items-center justify-between">
+      <header className="mb-10 backdrop-blur-md bg-white/60 dark:bg-slate-900/60 p-6 rounded-3xl border border-white/50 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors">
         <div>
-          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent tracking-tight">ApparelFlow ERP</h1>
-          <p className="text-gray-500 mt-2 text-lg">Welcome back, <span className="font-semibold text-gray-800">{user.full_name}</span> <span className="text-sm bg-gray-200/70 px-2 py-1 rounded-md ml-1 text-gray-600">{user.role.replace('_', ' ')}</span></p>
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight">ApparelFlow ERP</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Welcome back, <span className="font-semibold text-slate-800 dark:text-slate-200">{user.full_name}</span> <span className="text-sm bg-slate-200/70 dark:bg-slate-800 px-2 py-1 rounded-md ml-1 text-slate-600 dark:text-slate-300">{user.role.replace('_', ' ')}</span></p>
         </div>
-        <div className="hidden sm:block">
-           <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center transform rotate-3">
+        <div className="hidden sm:flex items-center gap-4">
+           <ThemeToggle />
+           <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/30 flex items-center justify-center transform rotate-3">
               <Factory className="w-6 h-6 text-white" />
            </div>
         </div>
@@ -67,16 +69,16 @@ export default function Dashboard() {
       <AnalyticsCards />
 
       {user.role === 'cutting_supervisor' && (
-        <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-blue-900/5 border border-white p-8 mb-10 transition-all hover:shadow-2xl hover:shadow-blue-900/10">
+        <section className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-blue-900/5 dark:shadow-black/40 border border-white dark:border-slate-800 p-8 mb-10 transition-all hover:shadow-2xl hover:shadow-blue-900/10 dark:hover:shadow-black/60">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="p-2.5 bg-blue-100 rounded-xl text-blue-700">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+                <div className="p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-700 dark:text-blue-400">
                   <Scissors className="w-6 h-6" />
                 </div>
                 Cutting Operations
               </h2>
-              <p className="text-gray-500 mt-2 ml-14">Manage production recipes and dispatch new cutting batches to verification.</p>
+              <p className="text-slate-500 dark:text-slate-400 mt-2 ml-14">Manage production recipes and dispatch new cutting batches to verification.</p>
             </div>
             <button 
               onClick={() => setIsCreateModalOpen(true)}
@@ -90,30 +92,30 @@ export default function Dashboard() {
       )}
 
       {user.role === 'cutting_verifier' && (
-        <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-amber-900/5 border border-white p-8 mb-10">
+        <section className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-amber-900/5 dark:shadow-black/40 border border-white dark:border-slate-800 p-8 mb-10">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="p-2.5 bg-amber-100 rounded-xl text-amber-600">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+              <div className="p-2.5 bg-amber-100 dark:bg-amber-900/50 rounded-xl text-amber-600 dark:text-amber-400">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               Verification Terminal
             </h2>
-            <p className="text-gray-500 mt-2 ml-14">Review pending cutting batches and accurately count components before sewing.</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 ml-14">Review pending cutting batches and accurately count components before sewing.</p>
           </div>
           <VerifierDashboard />
         </section>
       )}
 
       {user.role === 'sewing_supervisor' && (
-        <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-emerald-900/5 border border-white p-8 mb-10">
+        <section className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-emerald-900/5 dark:shadow-black/40 border border-white dark:border-slate-800 p-8 mb-10">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="p-2.5 bg-emerald-100 rounded-xl text-emerald-600">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl text-emerald-600 dark:text-emerald-400">
                 <Factory className="w-6 h-6" />
               </div>
               Sewing Queue
             </h2>
-            <p className="text-gray-500 mt-2 ml-14">Approved batches ready for immediate sewing assembly.</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 ml-14">Approved batches ready for immediate sewing assembly.</p>
           </div>
           <SewingDashboard />
         </section>
@@ -123,14 +125,14 @@ export default function Dashboard() {
       {user.role === 'cutting_supervisor' && (
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Recent Cutting Batches</h3>
-            <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{orders.length} Total</span>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Recent Cutting Batches</h3>
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">{orders.length} Total</span>
           </div>
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
-                  <tr className="bg-gray-50/50 border-b border-gray-100 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                  <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     <th className="py-4 px-6">Order No</th>
                     <th className="py-4 px-6">Recipe</th>
                     <th className="py-4 px-6">Target Qty</th>
@@ -138,22 +140,22 @@ export default function Dashboard() {
                     <th className="py-4 px-6">Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-gray-400 font-medium bg-gray-50/30">
+                      <td colSpan={5} className="py-12 text-center text-slate-500 dark:text-slate-400 font-medium bg-slate-50/30 dark:bg-slate-800/30">
                         No orders dispatched yet. Click "Dispatch New Batch" to start!
                       </td>
                     </tr>
                   ) : (
                     orders.map((order: any) => (
-                      <tr key={order.id} className="hover:bg-gray-50/80 transition-colors group">
-                        <td className="py-4 px-6 font-bold text-gray-900">{order.order_no}</td>
-                        <td className="py-4 px-6 text-gray-600">
+                      <tr key={order.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group">
+                        <td className="py-4 px-6 font-bold text-slate-900 dark:text-slate-100">{order.order_no}</td>
+                        <td className="py-4 px-6 text-slate-600 dark:text-slate-300">
                           <span className="font-medium">{order.recipe?.name}</span>
-                          <span className="text-xs text-gray-400 block mt-0.5">{order.recipe?.recipe_code}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">{order.recipe?.recipe_code}</span>
                         </td>
-                        <td className="py-4 px-6 text-gray-600 font-medium">{order.target_qty} units</td>
+                        <td className="py-4 px-6 text-slate-600 dark:text-slate-300 font-medium">{order.target_qty} units</td>
                         <td className="py-4 px-6">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
                             ${order.status === 'PENDING_VERIFICATION' ? 'bg-amber-100 text-amber-800 border border-amber-200' : ''}
@@ -175,7 +177,7 @@ export default function Dashboard() {
                             </button>
                           )}
                         </td>
-                        <td className="py-4 px-6 text-gray-400 text-sm font-medium">
+                        <td className="py-4 px-6 text-slate-500 dark:text-slate-400 text-sm font-medium">
                           {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                         </td>
                       </tr>

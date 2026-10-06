@@ -24,7 +24,7 @@ export default function AnalyticsCards() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {[1, 2, 3].map(i => (
-          <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse h-28"></div>
+          <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 animate-pulse h-28"></div>
         ))}
       </div>
     )
@@ -36,13 +36,13 @@ export default function AnalyticsCards() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{title}</h2>
+      <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat: any, index: number) => (
-          <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div key={index} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
-              <p className="text-sm font-semibold text-gray-500">{stat.label}</p>
-              <p className="text-3xl font-extrabold text-gray-900 mt-1">{stat.value}</p>
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{stat.label}</p>
+              <p className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">{stat.value}</p>
             </div>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bg} ${stat.color}`}>
               {/* Simple icon based on index or just standard icon */}
