@@ -118,16 +118,22 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       ? ((actualFabric - expectedFabric) / expectedFabric) * 100 
       : 0
 
-    // Begin transaction-like operations
+    // Begin transaction-like operations using Admin Client (bypassing the read-only RLS)
+    const { createClient: createSupabaseAdmin } = await import('@supabase/supabase-js')
+    const adminClient = createSupabaseAdmin(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
     // 1. Update verification items
-    const { error: itemsUpdateError } = await supabase
+    const { error: itemsUpdateError } = await adminClient
       .from('verification_items')
       .upsert(itemsToUpdate)
 
     if (itemsUpdateError) throw itemsUpdateError
 
     // 2. Insert verification log
-    const { error: logError } = await supabase
+    const { error: logError } = await adminClient
       .from('verification_logs')
       .insert({
         order_id: orderId,
@@ -142,7 +148,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
     // 3. Update order status
     const newStatus = decision === 'APPROVED' ? 'VERIFIED' : 'REJECTED'
-    const { error: orderUpdateError } = await supabase
+    const { error: orderUpdateError } = await adminClient
       .from('cutting_orders')
       .update({ status: newStatus })
       .eq('id', orderId)

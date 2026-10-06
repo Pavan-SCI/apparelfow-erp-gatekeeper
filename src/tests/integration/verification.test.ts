@@ -24,23 +24,23 @@ describe('Verification Domain Rules', () => {
   let testSupervisorId = ''
   
   beforeAll(async () => {
-    // 1. Get auth tokens for different roles using individual role-based passwords
+    // 1. Get auth tokens for different roles using individual role-based passwords from env
     const { data: vData } = await anonClient.auth.signInWithPassword({
       email: 'verifier@apparelflow.com',
-      password: 'verifier123'
+      password: process.env.TEST_VERIFIER_PASSWORD!
     })
     verifierToken = vData.session!.access_token
 
     const { data: nvData } = await anonClient.auth.signInWithPassword({
       email: 'supervisor@apparelflow.com', // Non-verifier role
-      password: 'supervisor123'
+      password: process.env.TEST_SUPERVISOR_PASSWORD!
     })
     nonVerifierToken = nvData.session!.access_token
     testSupervisorId = nvData.user!.id
 
     const { data: sData } = await anonClient.auth.signInWithPassword({
       email: 'sewing@apparelflow.com', // Sewing role
-      password: 'sewing123'
+      password: process.env.TEST_SEWING_PASSWORD!
     })
     sewingToken = sData.session!.access_token
 

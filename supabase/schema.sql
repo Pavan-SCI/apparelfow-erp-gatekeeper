@@ -111,3 +111,4 @@ VALUES
 CREATE INDEX IF NOT EXISTS idx_cutting_orders_status ON cutting_orders(status);
 CREATE INDEX IF NOT EXISTS idx_cutting_orders_updated_at ON cutting_orders(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_verification_items_order_id ON verification_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_verification_logs_verifier_timestamp ON verification_logs(verifier_id, timestamp DESC);

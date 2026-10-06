@@ -18,7 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased bg-gray-50 min-h-screen text-gray-900`}>
+      <body className={`${inter.className} antialiased bg-gray-50 min-h-screen text-gray-900 bg-[url('/grid.svg')] relative`}>
+        <div className="absolute inset-0 bg-blue-50/40 [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] -z-10"></div>
         <RoleProvider>
           {children}
           <RoleSwitcher />

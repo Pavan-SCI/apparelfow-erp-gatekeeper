@@ -48,8 +48,15 @@ export async function POST(request: Request) {
 
     const orderNo = `ORD-${Date.now().toString().slice(-6)}`
 
+    // Create Admin Client to bypass read-only RLS for the mutation
+    const { createClient: createSupabaseAdmin } = await import('@supabase/supabase-js')
+    const adminClient = createSupabaseAdmin(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
     // Create the order
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await adminClient
       .from('cutting_orders')
       .insert({
         order_no: orderNo,
@@ -75,7 +82,7 @@ export async function POST(request: Request) {
       status: null
     }))
 
-    const { error: itemsError } = await supabase
+    const { error: itemsError } = await adminClient
       .from('verification_items')
       .insert(verificationItems)
 
