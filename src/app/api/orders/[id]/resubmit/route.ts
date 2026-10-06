@@ -7,8 +7,31 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   try {
     const params = await props.params
     const orderId = params.id
-    const supabase = await createClient()
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+    const authHeader = request.headers.get('Authorization')
+    let supabase = await createClient()
+
+    if (authHeader) {
+      const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+      supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { global: { headers: { Authorization: authHeader } } }
+      )
+    }
+
+    let authUser = null
+    let authError = null
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1]
+      const result = await supabase.auth.getUser(token)
+      authUser = result.data.user
+      authError = result.error
+    } else {
+      const result = await supabase.auth.getUser()
+      authUser = result.data.user
+      authError = result.error
+    }
 
     if (authError || !authUser) {
       return NextResponse.json({ error: 'Unauthorized: No active session' }, { status: 401 })

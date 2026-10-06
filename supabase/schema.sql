@@ -106,3 +106,8 @@ VALUES
     ('33333333-3333-3333-3333-333333333333', 'supervisor@apparelflow.com', 'hashed_pwd', 'cutting_supervisor', 'John Supervisor'),
     ('44444444-4444-4444-4444-444444444444', 'verifier@apparelflow.com', 'hashed_pwd', 'cutting_verifier', 'Alice Verifier'),
     ('55555555-5555-5555-5555-555555555555', 'sewing@apparelflow.com', 'hashed_pwd', 'sewing_supervisor', 'Bob Sewing');
+
+-- Performance Indexes (Optimizations)
+CREATE INDEX IF NOT EXISTS idx_cutting_orders_status ON cutting_orders(status);
+CREATE INDEX IF NOT EXISTS idx_cutting_orders_updated_at ON cutting_orders(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_verification_items_order_id ON verification_items(order_id);

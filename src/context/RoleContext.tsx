@@ -2,10 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter, usePathname } from 'next/navigation'
 
 export type UserRole = 'cutting_supervisor' | 'cutting_verifier' | 'sewing_supervisor'
 
-interface User {
+export interface User {
   id: string
   email: string
   role: UserRole
@@ -15,7 +16,7 @@ interface User {
 // Demo users mapped to their Auth emails
 export const DEMO_USERS: Record<UserRole, User> = {
   cutting_supervisor: {
-    id: '33333333-3333-3333-3333-333333333333', // Temporary visual ID
+    id: '33333333-3333-3333-3333-333333333333', 
     email: 'supervisor@apparelflow.com',
     role: 'cutting_supervisor',
     full_name: 'John Supervisor',
@@ -36,7 +37,8 @@ export const DEMO_USERS: Record<UserRole, User> = {
 
 interface RoleContextType {
   user: User | null
-  setUser: (user: User) => Promise<void>
+  login: (email: string, password: string) => Promise<{ error?: string }>
+  logout: () => Promise<void>
   isLoading: boolean
 }
 
@@ -46,44 +48,62 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const handleSetUser = useCallback(async (newUser: User) => {
+  const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true)
-    // REAL AUTHENTICATION: Sign in with Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: newUser.email,
-      password: process.env.NEXT_PUBLIC_DEMO_PASSWORD as string,
+      email,
+      password,
     })
     
-    if (!error && data.session) {
-      setUserState({ ...newUser, id: data.session.user.id })
+    if (error) {
+      setIsLoading(false)
+      return { error: error.message }
+    }
+    
+    if (data.session) {
+      const activeUser = Object.values(DEMO_USERS).find(u => u.email === data.session.user.email)
+      if (activeUser) {
+        setUserState({ ...activeUser, id: data.session.user.id })
+      }
+      router.push('/')
     }
     setIsLoading(false)
-  }, [supabase])
+    return {}
+  }, [supabase, router])
+
+  const logout = useCallback(async () => {
+    setIsLoading(true)
+    await supabase.auth.signOut()
+    setUserState(null)
+    router.push('/login')
+    setIsLoading(false)
+  }, [supabase, router])
 
   useEffect(() => {
-    // Check active Supabase session on load
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
-        // Find matching demo user by email
         const activeUser = Object.values(DEMO_USERS).find(u => u.email === session.user.email)
         if (activeUser) {
-          // Update visual ID to match real Auth ID
           setUserState({ ...activeUser, id: session.user.id })
         }
       } else {
-        // Auto-login to Supervisor as default for demo if no session
-        handleSetUser(DEMO_USERS.cutting_supervisor)
+        setUserState(null)
+        if (pathname !== '/login') {
+          router.push('/login')
+        }
       }
       setIsLoading(false)
     }
 
     checkSession()
-  }, [handleSetUser, supabase])
+  }, [supabase, router, pathname])
 
   return (
-    <RoleContext.Provider value={{ user, setUser: handleSetUser, isLoading }}>
+    <RoleContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </RoleContext.Provider>
   )

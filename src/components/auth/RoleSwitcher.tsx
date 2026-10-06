@@ -5,44 +5,29 @@ import { useRole, DEMO_USERS, UserRole } from '@/context/RoleContext'
 import { Users, Loader2 } from 'lucide-react'
 
 export default function RoleSwitcher() {
-  const { user, setUser, isLoading } = useRole()
+  const { user, logout, isLoading } = useRole()
 
-  if (!user && isLoading) return null
+  if (!user || isLoading) return null
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white shadow-2xl rounded-xl border border-gray-100 p-4 z-50 w-80">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-600" />
-          <h3 className="font-semibold text-sm text-gray-800">Demo Role Switcher</h3>
+    <div className="fixed bottom-4 right-4 bg-white shadow-2xl rounded-xl border border-gray-100 p-3 z-50 w-64 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+          {user.full_name.charAt(0)}
         </div>
-        {isLoading && <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />}
+        <div>
+          <h3 className="font-semibold text-sm text-gray-900">{user.full_name}</h3>
+          <p className="text-xs text-gray-500">{user.role.replace('_', ' ')}</p>
+        </div>
       </div>
       
-      <div className="flex flex-col gap-2">
-        {(Object.keys(DEMO_USERS) as UserRole[]).map((roleKey) => {
-          const u = DEMO_USERS[roleKey]
-          const isActive = user?.email === u.email
-          return (
-            <button
-              key={u.email}
-              onClick={() => setUser(u)}
-              disabled={isLoading}
-              className={`text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                isActive 
-                  ? 'bg-blue-50 border-blue-200 border text-blue-700 font-medium' 
-                  : 'hover:bg-gray-50 border border-transparent text-gray-600 disabled:opacity-50'
-              }`}
-            >
-              <div className="flex justify-between items-center">
-                <span>{u.full_name}</span>
-                {isActive && <span className="w-2 h-2 rounded-full bg-blue-500"></span>}
-              </div>
-              <div className="text-xs opacity-70 mt-0.5">{u.role}</div>
-            </button>
-          )
-        })}
-      </div>
+      <button
+        onClick={logout}
+        title="Sign Out"
+        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
     </div>
   )
 }
