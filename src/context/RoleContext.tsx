@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export type UserRole = 'cutting_supervisor' | 'cutting_verifier' | 'sewing_supervisor'
@@ -47,6 +47,20 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
 
+  const handleSetUser = useCallback(async (newUser: User) => {
+    setIsLoading(true)
+    // REAL AUTHENTICATION: Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: newUser.email,
+      password: 'password123',
+    })
+    
+    if (!error && data.session) {
+      setUserState({ ...newUser, id: data.session.user.id })
+    }
+    setIsLoading(false)
+  }, [supabase])
+
   useEffect(() => {
     // Check active Supabase session on load
     const checkSession = async () => {
@@ -66,21 +80,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkSession()
-  }, [])
-
-  const handleSetUser = async (newUser: User) => {
-    setIsLoading(true)
-    // REAL AUTHENTICATION: Sign in with Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: newUser.email,
-      password: 'password123',
-    })
-    
-    if (!error && data.session) {
-      setUserState({ ...newUser, id: data.session.user.id })
-    }
-    setIsLoading(false)
-  }
+  }, [handleSetUser, supabase])
 
   return (
     <RoleContext.Provider value={{ user, setUser: handleSetUser, isLoading }}>

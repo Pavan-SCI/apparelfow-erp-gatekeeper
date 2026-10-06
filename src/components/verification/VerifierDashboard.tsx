@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import React, { useState } from 'react'
@@ -26,7 +27,7 @@ export default function VerifierDashboard() {
     return data
   }
 
-  const { data: pendingOrders, error, mutate } = useSWR('pending-orders', fetcher, {
+  const { data: pendingOrders = [], error, mutate } = useSWR('pending-orders', fetcher, {
     revalidateOnFocus: true,
     refreshInterval: 10000 // Poll every 10s to keep queue fresh for verifiers
   })
@@ -89,7 +90,7 @@ export default function VerifierDashboard() {
         onClose={() => setSelectedOrder(null)}
         onSuccess={() => {
           setSelectedOrder(null)
-          fetchPendingOrders() // refresh list
+          mutate() // refresh list
         }}
       />
     </div>

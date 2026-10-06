@@ -73,7 +73,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     // Calculate actuals and expected for the traffic light logic server-side
     let hasShortage = false
 
-    const itemsToUpdate = items.map((item: any) => {
+    const itemsToUpdate = items.map((item: Record<string, any>) => {
       let status = 'GREEN'
       if (item.actual_qty < item.expected_qty) {
         status = 'RED'
@@ -139,8 +139,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     if (orderUpdateError) throw orderUpdateError
 
     return NextResponse.json({ success: true, status: newStatus }, { status: 200 })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message || 'Internal server error' }, { status: 500 })
   }
 }
 

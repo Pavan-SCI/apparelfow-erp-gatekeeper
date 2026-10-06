@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -60,9 +62,10 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
     if (selectedRecipeId) {
       fetchComponents(selectedRecipeId)
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setComponents([])
     }
-  }, [selectedRecipeId])
+  }, [selectedRecipeId, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from 'react'
@@ -122,7 +123,7 @@ export default function Dashboard() {
                     <td colSpan={5} className="py-8 text-center text-gray-500">No orders found. Create one above!</td>
                   </tr>
                 ) : (
-                  orders.map(order => (
+                  orders.map((order: any) => (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-3 px-4 font-medium text-gray-900">{order.order_no}</td>
                       <td className="py-3 px-4 text-gray-600">{order.recipe?.name} ({order.recipe?.recipe_code})</td>

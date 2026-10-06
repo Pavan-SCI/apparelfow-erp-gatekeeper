@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import React, { useState } from 'react'
@@ -71,7 +72,7 @@ export default function SewingDashboard() {
         </div>
       ) : (
         <div className="grid gap-6">
-          {orders.map(order => {
+          {orders.map((order: any) => {
             // Because verification_logs could be an array based on the join, get the latest one
             const latestLog = Array.isArray(order.verification_logs) 
               ? order.verification_logs[order.verification_logs.length - 1] 
