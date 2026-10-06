@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRole, DEMO_USERS, UserRole } from '@/context/RoleContext'
 import { useRouter } from 'next/navigation'
-import { Lock, User as UserIcon, Loader2, ArrowRight } from 'lucide-react'
+import { Lock, User as UserIcon, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const { login, user, isLoading: contextLoading } = useRole()
@@ -11,6 +11,7 @@ export default function LoginPage() {
   
   const [selectedRole, setSelectedRole] = useState<UserRole>('cutting_supervisor')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
@@ -122,14 +123,25 @@ export default function LoginPage() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white"
+                  className="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white"
                   placeholder="Enter your password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-5 w-5" aria-hidden="true" />
+                  )}
+                </button>
               </div>
               <p className="mt-2 text-xs text-gray-500">Hint: Passwords are role-based (e.g. supervisor123)</p>
             </div>
