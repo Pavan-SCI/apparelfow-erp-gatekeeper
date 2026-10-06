@@ -10,10 +10,11 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
+const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD || ''
 const usersToCreate = [
-  { email: 'supervisor@apparelflow.com', password: 'password123', role: 'cutting_supervisor', full_name: 'John Supervisor', id: '33333333-3333-3333-3333-333333333333' },
-  { email: 'verifier@apparelflow.com', password: 'password123', role: 'cutting_verifier', full_name: 'Alice Verifier', id: '44444444-4444-4444-4444-444444444444' },
-  { email: 'sewing@apparelflow.com', password: 'password123', role: 'sewing_supervisor', full_name: 'Bob Sewing', id: '55555555-5555-5555-5555-555555555555' }
+  { email: 'supervisor@apparelflow.com', password: demoPassword, role: 'cutting_supervisor', full_name: 'John Supervisor', id: '33333333-3333-3333-3333-333333333333' },
+  { email: 'verifier@apparelflow.com', password: demoPassword, role: 'cutting_verifier', full_name: 'Alice Verifier', id: '44444444-4444-4444-4444-444444444444' },
+  { email: 'sewing@apparelflow.com', password: demoPassword, role: 'sewing_supervisor', full_name: 'Bob Sewing', id: '55555555-5555-5555-5555-555555555555' }
 ]
 
 async function setupAuth() {

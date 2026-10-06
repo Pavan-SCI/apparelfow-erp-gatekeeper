@@ -52,7 +52,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
     // REAL AUTHENTICATION: Sign in with Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
       email: newUser.email,
-      password: 'password123',
+      password: process.env.NEXT_PUBLIC_DEMO_PASSWORD as string,
     })
     
     if (!error && data.session) {
