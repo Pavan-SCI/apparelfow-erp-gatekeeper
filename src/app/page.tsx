@@ -6,6 +6,7 @@ import CreateOrderModal from '@/components/CreateOrderModal'
 import { Plus, Scissors, CheckCircle2, Factory } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import VerifierDashboard from '@/components/VerifierDashboard'
+import SewingDashboard from '@/components/SewingDashboard'
 
 export default function Dashboard() {
   const { user } = useRole()
@@ -102,11 +103,8 @@ export default function Dashboard() {
               <Factory className="w-5 h-5 text-emerald-600" />
               Sewing Queue
             </h2>
-            <p className="text-gray-500 mt-1">Batches ready for sewing assembly.</p>
-            {/* We will build the sewing queue in Day 4 */}
-            <div className="mt-4 p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200">
-              Sewing queue interface will be implemented in Day 4.
-            </div>
+            <p className="text-gray-500 mt-1 mb-4">Batches ready for sewing assembly.</p>
+            <SewingDashboard />
           </div>
         </section>
       )}
