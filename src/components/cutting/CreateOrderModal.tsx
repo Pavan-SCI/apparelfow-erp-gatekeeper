@@ -146,9 +146,9 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
           <form id="create-order-form" onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Select Production Recipe</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Select Production Recipe</label>
                 <select 
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 dark:text-slate-100"
                   value={selectedRecipeId}
                   onChange={(e) => setSelectedRecipeId(e.target.value)}
                   required
@@ -162,13 +162,13 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Target Batch Quantity (Units)</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Target Batch Quantity (Units)</label>
                   <input 
                     type="number" 
                     min="1"
-                    className={`w-full px-4 py-3 bg-white border ${
-                      targetQty && isNaN(parseInt(targetQty)) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    } rounded-xl focus:ring-2 transition-all text-gray-900 placeholder-gray-400`}
+                    className={`w-full px-4 py-3 bg-white dark:bg-slate-900 border ${
+                      targetQty && isNaN(parseInt(targetQty)) ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500'
+                    } rounded-xl focus:ring-2 transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500`}
                     placeholder="e.g., 50"
                     value={targetQty}
                     onChange={(e) => setTargetQty(e.target.value)}
@@ -184,10 +184,10 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Fabric Roll ID</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Fabric Roll ID</label>
                   <input 
                     type="text" 
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                     placeholder="e.g., FAB-ROLL-882"
                     value={fabricRollId}
                     onChange={(e) => setFabricRollId(e.target.value)}
@@ -197,14 +197,14 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Actual Fabric Used (Yards)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Actual Fabric Used (Yards)</label>
                 <input 
                   type="number" 
                   step="0.01"
                   min="0.1"
-                  className={`w-full px-4 py-3 bg-white border ${
-                    actualFabric && isNaN(parseFloat(actualFabric)) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                  } rounded-xl focus:ring-2 transition-all text-gray-900 placeholder-gray-400`}
+                  className={`w-full px-4 py-3 bg-white dark:bg-slate-900 border ${
+                    actualFabric && isNaN(parseFloat(actualFabric)) ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500'
+                  } rounded-xl focus:ring-2 transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500`}
                   placeholder="e.g., 105.5"
                   value={actualFabric}
                   onChange={(e) => setActualFabric(e.target.value)}
@@ -230,9 +230,9 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {components.map(comp => (
-                    <div key={comp.id} className="bg-white px-4 py-3 rounded-lg border border-blue-100/50 flex justify-between items-center shadow-sm">
-                      <span className="text-sm font-medium text-gray-700">{comp.component_name}</span>
-                      <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
+                    <div key={comp.id} className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-blue-100/50 dark:border-slate-700 flex justify-between items-center shadow-sm">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{comp.component_name}</span>
+                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-md">
                         {comp.pieces_per_garment * parseInt(targetQty)} expected
                       </span>
                     </div>

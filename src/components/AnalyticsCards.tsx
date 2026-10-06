@@ -38,7 +38,7 @@ export default function AnalyticsCards() {
     <div className="mb-8">
       <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat: any, index: number) => (
+        {stats.map((stat: { label: string; value: string | number; bg: string; color: string; }, index: number) => (
           <div key={index} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
               <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{stat.label}</p>

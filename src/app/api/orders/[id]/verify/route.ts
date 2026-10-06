@@ -3,6 +3,13 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+interface VerificationItem {
+  id?: string;
+  component_id: string;
+  expected_qty: number;
+  actual_qty: number;
+}
+
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
   try {
     const params = await props.params
@@ -84,7 +91,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     // Calculate actuals and expected for the traffic light logic server-side
     let hasShortage = false
 
-    const itemsToUpdate = items.map((item: Record<string, any>) => {
+    const itemsToUpdate = items.map((item: VerificationItem) => {
       let status = 'GREEN'
       if (item.actual_qty < item.expected_qty) {
         status = 'RED'

@@ -68,7 +68,7 @@ describe('Verification Domain Rules', () => {
 
     const { data: recipeComps } = await adminClient.from('recipe_components').select('*').eq('recipe_id', testRecipeId)
     
-    const items = recipeComps!.map((rc: any) => ({
+    const items = recipeComps!.map((rc: { id: string, pieces_per_garment: number }) => ({
       order_id: order!.id,
       component_id: rc.id,
       expected_qty: rc.pieces_per_garment * 10,
@@ -191,7 +191,7 @@ describe('Verification Domain Rules', () => {
     const data = await res.json()
     
     // Assert that the newly created PENDING order is NOT in the queue
-    const orderInQueue = data.data.find((o: any) => o.id === orderId)
+    const orderInQueue = data.data.find((o: { id: string }) => o.id === orderId)
     expect(orderInQueue).toBeUndefined()
     
     // Also assert that ALL orders in the queue are strictly VERIFIED

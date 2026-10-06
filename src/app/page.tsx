@@ -144,7 +144,7 @@ export default function Dashboard() {
                   {orders.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="py-12 text-center text-slate-500 dark:text-slate-400 font-medium bg-slate-50/30 dark:bg-slate-800/30">
-                        No orders dispatched yet. Click "Dispatch New Batch" to start!
+                        No orders dispatched yet. Click &quot;Dispatch New Batch&quot; to start!
                       </td>
                     </tr>
                   ) : (

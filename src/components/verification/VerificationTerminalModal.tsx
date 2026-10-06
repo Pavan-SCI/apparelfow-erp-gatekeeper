@@ -149,25 +149,25 @@ export default function VerificationTerminalModal({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm transition-colors">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-gray-100/50 border-b border-gray-200 text-sm text-gray-600">
+                    <tr className="bg-slate-100/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
                       <th className="py-3 px-4 font-semibold">Component</th>
                       <th className="py-3 px-4 font-semibold text-center w-32">Expected</th>
                       <th className="py-3 px-4 font-semibold text-center w-40">Actual Count</th>
                       <th className="py-3 px-4 font-semibold w-48">Status (Traffic Light)</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {items.map(item => {
                       const status = getStatus(item.expected_qty, item.actual_qty)
                       
                       return (
-                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-4 font-medium text-gray-900">{item.component?.component_name}</td>
+                        <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="py-4 px-4 font-medium text-slate-900 dark:text-slate-100">{item.component?.component_name}</td>
                           <td className="py-4 px-4 text-center">
-                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md font-bold text-sm border border-gray-200">
+                            <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-md font-bold text-sm border border-slate-200 dark:border-slate-700">
                               {item.expected_qty}
                             </span>
                           </td>
@@ -183,8 +183,8 @@ export default function VerificationTerminalModal({
                                 }
                               }}
                               className={`w-full text-center px-3 py-2 border ${
-                                item.actual_qty === '' || isNaN(parseInt(item.actual_qty)) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                              } rounded-lg focus:ring-2 font-bold text-gray-900 shadow-inner bg-white placeholder-gray-400`}
+                                item.actual_qty === '' || isNaN(parseInt(item.actual_qty)) ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500'
+                              } rounded-lg focus:ring-2 font-bold text-slate-900 dark:text-slate-100 shadow-inner bg-white dark:bg-slate-950 placeholder-slate-400 dark:placeholder-slate-500`}
                               placeholder="0"
                             />
                             {(item.actual_qty === '' || isNaN(parseInt(item.actual_qty))) && (
@@ -193,8 +193,8 @@ export default function VerificationTerminalModal({
                           </td>
                           <td className="py-4 px-4">
                             {status === 'PENDING' && (
-                              <div className="flex items-center gap-2 text-gray-400">
-                                <div className="w-3 h-3 rounded-full bg-gray-200"></div>
+                              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                <div className="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700"></div>
                                 <span className="text-sm font-medium">Pending Count</span>
                               </div>
                             )}
@@ -235,7 +235,7 @@ export default function VerificationTerminalModal({
                     value={rejectionNote}
                     onChange={(e) => setRejectionNote(e.target.value)}
                     placeholder="Provide a clear reason for returning this batch to the cutting floor..."
-                    className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder-gray-400"
+                    className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                     rows={3}
                   />
                   <div className="flex justify-end gap-3 mt-3">
