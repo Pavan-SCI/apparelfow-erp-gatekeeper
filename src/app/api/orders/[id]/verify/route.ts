@@ -8,10 +8,19 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     const params = await props.params
     const orderId = params.id
     
-    const supabase = await createClient()
-    
-    // Support Bearer token from headers (for easy Postman testing) or fallback to cookies
     const authHeader = request.headers.get('Authorization')
+    let supabase = await createClient()
+
+    // If Authorization header is present (API clients), override the client to use it
+    if (authHeader) {
+      const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+      supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { global: { headers: { Authorization: authHeader } } }
+      )
+    }
+
     let authUser = null
     let authError = null
 
@@ -39,6 +48,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       .select('role')
       .eq('id', userId)
       .single()
+
+    console.log("verify route auth check:", { userId, user, userError })
 
     if (userError || !user || user.role !== 'cutting_verifier') {
       return NextResponse.json({ error: 'Forbidden: Only Cutting Verifier can verify batches' }, { status: 403 })
