@@ -148,7 +148,7 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Select Production Recipe</label>
                 <select 
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900"
                   value={selectedRecipeId}
                   onChange={(e) => setSelectedRecipeId(e.target.value)}
                   required
@@ -166,18 +166,28 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
                   <input 
                     type="number" 
                     min="1"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+                    className={`w-full px-4 py-3 bg-white border ${
+                      targetQty && isNaN(parseInt(targetQty)) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                    } rounded-xl focus:ring-2 transition-all text-gray-900 placeholder-gray-400`}
                     placeholder="e.g., 50"
                     value={targetQty}
                     onChange={(e) => setTargetQty(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (['.', '-', 'e', 'E', '+'].includes(e.key)) {
+                        e.preventDefault()
+                      }
+                    }}
                     required
                   />
+                  {targetQty && isNaN(parseInt(targetQty)) && (
+                    <p className="text-red-500 text-xs mt-1 font-medium">Must be a valid integer.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Fabric Roll ID</label>
                   <input 
                     type="text" 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400"
                     placeholder="e.g., FAB-ROLL-882"
                     value={fabricRollId}
                     onChange={(e) => setFabricRollId(e.target.value)}
@@ -192,12 +202,22 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
                   type="number" 
                   step="0.01"
                   min="0.1"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+                  className={`w-full px-4 py-3 bg-white border ${
+                    actualFabric && isNaN(parseFloat(actualFabric)) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                  } rounded-xl focus:ring-2 transition-all text-gray-900 placeholder-gray-400`}
                   placeholder="e.g., 105.5"
                   value={actualFabric}
                   onChange={(e) => setActualFabric(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (['-', 'e', 'E', '+'].includes(e.key)) {
+                      e.preventDefault()
+                    }
+                  }}
                   required
                 />
+                {actualFabric && isNaN(parseFloat(actualFabric)) && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">Must be a valid numeric value.</p>
+                )}
               </div>
             </div>
 

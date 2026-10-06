@@ -177,9 +177,19 @@ export default function VerificationTerminalModal({
                               min="0"
                               value={item.actual_qty}
                               onChange={(e) => handleQtyChange(item.id, e.target.value)}
-                              className="w-full text-center px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-gray-900 shadow-inner bg-white"
+                              onKeyDown={(e) => {
+                                if (['.', '-', 'e', 'E', '+'].includes(e.key)) {
+                                  e.preventDefault()
+                                }
+                              }}
+                              className={`w-full text-center px-3 py-2 border ${
+                                item.actual_qty === '' || isNaN(parseInt(item.actual_qty)) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                              } rounded-lg focus:ring-2 font-bold text-gray-900 shadow-inner bg-white placeholder-gray-400`}
                               placeholder="0"
                             />
+                            {(item.actual_qty === '' || isNaN(parseInt(item.actual_qty))) && (
+                              <p className="text-red-500 text-[10px] mt-1 font-bold text-center uppercase tracking-wide">Required</p>
+                            )}
                           </td>
                           <td className="py-4 px-4">
                             {status === 'PENDING' && (
@@ -225,7 +235,7 @@ export default function VerificationTerminalModal({
                     value={rejectionNote}
                     onChange={(e) => setRejectionNote(e.target.value)}
                     placeholder="Provide a clear reason for returning this batch to the cutting floor..."
-                    className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-white"
+                    className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder-gray-400"
                     rows={3}
                   />
                   <div className="flex justify-end gap-3 mt-3">

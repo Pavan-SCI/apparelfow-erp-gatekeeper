@@ -57,6 +57,7 @@ export async function GET(request: Request) {
         recipe:recipes(name, recipe_code),
         creator:users!cutting_orders_created_by_fkey(full_name),
         verification_items(
+          id,
           expected_qty,
           actual_qty,
           status,
