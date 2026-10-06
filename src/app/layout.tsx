@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'ApparelFlow ERP Execution System',
   description: 'Production Batch Verification & Sewing Queue Gate',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({
