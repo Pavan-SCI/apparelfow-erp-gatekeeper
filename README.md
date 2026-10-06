@@ -1,5 +1,7 @@
 # ApparelFlow ERP Gatekeeper
 
+🚀 **Live Demo:** [https://apparelfow-erp-gatekeeper.vercel.app/](https://apparelfow-erp-gatekeeper.vercel.app/)
+
 ApparelFlow is a robust, role-based ERP execution module designed to bridge the gap between cutting room production and sewing assembly. It acts as a strict "Gatekeeper," ensuring that only completely verified, accurately counted garment components proceed to the sewing floor, significantly reducing downstream assembly line blockages due to component shortages.
 
 ## 1. Architecture Summary
