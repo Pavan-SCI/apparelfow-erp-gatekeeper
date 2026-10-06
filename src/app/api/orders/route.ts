@@ -89,6 +89,12 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const supabase = await createClient()
+  
+  const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+  if (authError || !authUser) {
+    return NextResponse.json({ error: 'Unauthorized: No active session' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
   

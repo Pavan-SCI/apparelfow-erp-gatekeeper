@@ -64,6 +64,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
+    if (order.status !== 'PENDING_VERIFICATION') {
+      return NextResponse.json({ error: 'Forbidden: Order is not pending verification' }, { status: 403 })
+    }
+
     // Calculate actuals and expected for the traffic light logic server-side
     let hasShortage = false
 
