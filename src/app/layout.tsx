@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { RoleProvider } from '@/context/RoleContext'
-import RoleSwitcher from '@/components/auth/RoleSwitcher'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -39,7 +38,6 @@ export default function RootLayout({
         >
           <RoleProvider>
             {children}
-            <RoleSwitcher />
           </RoleProvider>
         </ThemeProvider>
       </body>

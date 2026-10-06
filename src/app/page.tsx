@@ -15,7 +15,7 @@ import AnalyticsCards from '@/components/AnalyticsCards'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function Dashboard() {
-  const { user } = useRole()
+  const { user, logout } = useRole()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const fetcher = async () => {
     const res = await fetch('/api/orders')
@@ -58,9 +58,34 @@ export default function Dashboard() {
           <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight">ApparelFlow ERP</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Welcome back, <span className="font-semibold text-slate-800 dark:text-slate-200">{user.full_name}</span> <span className="text-sm bg-slate-200/70 dark:bg-slate-800 px-2 py-1 rounded-md ml-1 text-slate-600 dark:text-slate-300">{user.role.replace('_', ' ')}</span></p>
         </div>
-        <div className="hidden sm:flex items-center gap-4">
+        <div className="flex items-center gap-3">
            <ThemeToggle />
-           <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/30 flex items-center justify-center transform rotate-3">
+           
+           {/* Profile & Logout (Desktop) */}
+           <div className="hidden sm:flex items-center gap-2 bg-white/50 dark:bg-slate-800/50 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+             <div className="flex items-center gap-2 pl-2">
+               <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm">
+                 {user.full_name.charAt(0)}
+               </div>
+             </div>
+             <button
+               onClick={logout}
+               title="Sign Out"
+               className="p-2 text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-colors"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+             </button>
+           </div>
+
+           {/* Mobile Logout */}
+           <button
+             onClick={logout}
+             className="sm:hidden p-2.5 bg-white/50 dark:bg-slate-800/50 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 border border-slate-200 dark:border-slate-700 rounded-xl"
+           >
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+           </button>
+           
+           <div className="hidden lg:flex w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/30 items-center justify-center transform rotate-3 ml-2">
               <Factory className="w-6 h-6 text-white" />
            </div>
         </div>
