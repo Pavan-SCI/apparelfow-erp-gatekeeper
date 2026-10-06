@@ -3,6 +3,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, CheckCircle, AlertTriangle, XCircle, Loader2 } from 'lucide-react'
 
 export default function VerificationTerminalModal({ 
@@ -23,12 +24,24 @@ export default function VerificationTerminalModal({
   
   const [rejectMode, setRejectMode] = useState(false)
   const [rejectionNote, setRejectionNote] = useState('')
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`/api/orders/${order.id}/verify`)
+        const { createClient } = await import('@/lib/supabase/client')
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch(`/api/orders/${order.id}/verify`, {
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        })
         const data = await res.json()
         if (data.items) {
           const initializedItems = data.items.map((item: any) => ({
@@ -96,9 +109,16 @@ export default function VerificationTerminalModal({
         }))
       }
 
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
       const res = await fetch(`/api/orders/${order.id}/verify`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify(payload)
       })
 
@@ -117,25 +137,25 @@ export default function VerificationTerminalModal({
     }
   }
 
-  if (!isOpen || !order) return null
+  if (!isOpen || !order || !isMounted) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div className="bg-white rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
-        <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-900 text-white">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-4xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col h-fit max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div className="shrink-0 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-900 dark:bg-slate-950 text-white">
           <div>
-            <h2 className="text-xl font-bold flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold flex flex-wrap items-center gap-2">
               Verification Terminal
-              <span className="bg-amber-500 text-amber-950 text-xs px-2 py-0.5 rounded-md font-bold uppercase">QC View</span>
+              <span className="bg-amber-500 text-amber-950 text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-bold uppercase">QC View</span>
             </h2>
-            <p className="text-gray-300 text-sm mt-1">Batch: {order.order_no} | Recipe: {order.recipe?.name}</p>
+            <p className="text-slate-300 dark:text-slate-400 text-xs sm:text-sm mt-1">Batch: {order.order_no} | Recipe: {order.recipe?.name}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400">
+          <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 dark:text-slate-500">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-gray-50">
+        <div className="flex-1 min-h-0 p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3">
               <XCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -149,8 +169,8 @@ export default function VerificationTerminalModal({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm transition-colors">
-                <table className="w-full text-left border-collapse">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-x-auto shadow-sm transition-colors">
+                <table className="w-full min-w-[600px] text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-100/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
                       <th className="py-3 px-4 font-semibold">Component</th>
@@ -226,8 +246,8 @@ export default function VerificationTerminalModal({
               
               {/* Reject Flow UI */}
               {rejectMode && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-5 mt-6 animate-in fade-in slide-in-from-top-4">
-                  <h3 className="text-red-800 font-bold flex items-center gap-2 mb-3">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl p-4 sm:p-5 mt-6 animate-in fade-in slide-in-from-top-4">
+                  <h3 className="text-red-800 dark:text-red-400 font-bold flex items-center gap-2 mb-3">
                     <AlertTriangle className="w-5 h-5" />
                     Mandatory Rejection Note
                   </h3>
@@ -235,13 +255,13 @@ export default function VerificationTerminalModal({
                     value={rejectionNote}
                     onChange={(e) => setRejectionNote(e.target.value)}
                     placeholder="Provide a clear reason for returning this batch to the cutting floor..."
-                    className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                    className="w-full p-3 border border-red-300 dark:border-red-800/50 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                     rows={3}
                   />
-                  <div className="flex justify-end gap-3 mt-3">
+                  <div className="flex flex-col sm:flex-row justify-end gap-3 mt-3">
                     <button 
                       onClick={() => setRejectMode(false)}
-                      className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-lg"
+                      className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
@@ -261,29 +281,29 @@ export default function VerificationTerminalModal({
         </div>
 
         {!rejectMode && (
-          <div className="px-6 py-4 border-t bg-white flex justify-between items-center">
+          <div className="shrink-0 px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex flex-col sm:flex-row justify-between items-center gap-4">
             <button 
               onClick={() => setRejectMode(true)}
-              className="px-5 py-2.5 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors flex items-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-bold text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-5 h-5 flex-shrink-0" />
               Reject Batch
             </button>
             
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
               {hasAnyRed && (
-                <span className="text-sm font-medium text-red-600 flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4" />
+                <span className="text-sm font-medium text-red-600 dark:text-red-500 flex items-center gap-1.5 text-center sm:text-left">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                   Shortage detected. Approval disabled.
                 </span>
               )}
               <button 
                 onClick={() => handleSubmit('APPROVED')}
                 disabled={isApproveDisabled}
-                className={`px-8 py-2.5 text-sm font-bold text-white rounded-xl transition-all shadow-sm flex items-center gap-2
+                className={`w-full sm:w-auto px-8 py-2.5 text-sm font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2
                   ${isApproveDisabled 
-                    ? 'bg-gray-300 cursor-not-allowed opacity-70' 
-                    : 'bg-emerald-600 hover:bg-emerald-700 hover:shadow-md'
+                    ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed' 
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white hover:shadow-md'
                   }
                 `}
               >
@@ -295,6 +315,7 @@ export default function VerificationTerminalModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

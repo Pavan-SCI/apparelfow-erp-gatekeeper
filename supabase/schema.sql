@@ -112,3 +112,11 @@ CREATE INDEX IF NOT EXISTS idx_cutting_orders_status ON cutting_orders(status);
 CREATE INDEX IF NOT EXISTS idx_cutting_orders_updated_at ON cutting_orders(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_verification_items_order_id ON verification_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_verification_logs_verifier_timestamp ON verification_logs(verifier_id, timestamp DESC);
+
+-- Foreign Key Joining Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_recipe_components_recipe_id ON recipe_components(recipe_id);
+CREATE INDEX IF NOT EXISTS idx_cutting_orders_recipe_id ON cutting_orders(recipe_id);
+CREATE INDEX IF NOT EXISTS idx_cutting_orders_created_by ON cutting_orders(created_by);
+CREATE INDEX IF NOT EXISTS idx_verification_items_component_id ON verification_items(component_id);
+CREATE INDEX IF NOT EXISTS idx_verification_logs_order_id ON verification_logs(order_id);
+

@@ -3,6 +3,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useRole } from '@/context/RoleContext'
 import { createClient } from '@/lib/supabase/client'
 import { X, Plus, AlertCircle, Loader2 } from 'lucide-react'
@@ -32,6 +33,9 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
   
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  
+  useEffect(() => setIsMounted(true), [])
   
   const supabase = createClient()
 
@@ -97,9 +101,13 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
     setLoading(true)
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify({
           recipe_id: selectedRecipeId,
           target_qty: qty,
@@ -123,19 +131,19 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen || !isMounted) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50/50">
-          <h2 className="text-xl font-bold text-gray-800">Create New Cutting Batch</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl overflow-hidden shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col h-fit max-h-[90vh] border border-slate-200 dark:border-slate-700">
+        <div className="shrink-0 px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Create New Cutting Batch</h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500 dark:text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-white dark:bg-slate-900">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3">
               <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -223,14 +231,14 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
 
             {/* Dynamic Component Multiplier Display */}
             {selectedRecipeId && targetQty && parseInt(targetQty) > 0 && (
-              <div className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-5">
-                <h3 className="font-semibold text-blue-900 mb-4 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center text-xs">M</span>
+              <div className="mt-8 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl p-5">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-400 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xs">M</span>
                   Dynamic Component Multiplier
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {components.map(comp => (
-                    <div key={comp.id} className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-blue-100/50 dark:border-slate-700 flex justify-between items-center shadow-sm">
+                    <div key={comp.id} className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-blue-100/50 dark:border-slate-800 flex justify-between items-center shadow-sm">
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{comp.component_name}</span>
                       <span className="text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-md">
                         {comp.pieces_per_garment * parseInt(targetQty)} expected
@@ -243,11 +251,11 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
           </form>
         </div>
 
-        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+        <div className="shrink-0 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-end gap-3">
           <button 
             type="button" 
             onClick={onClose}
-            className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-xl transition-colors"
+            className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors"
           >
             Cancel
           </button>
@@ -255,13 +263,14 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
             type="submit" 
             form="create-order-form"
             disabled={loading}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-70 disabled:pointer-events-none flex items-center gap-2"
+            className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-70 disabled:pointer-events-none flex items-center gap-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {loading ? 'Creating Order...' : 'Submit Order'}
+            {loading ? 'Creating...' : 'Submit Order'}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

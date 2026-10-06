@@ -18,7 +18,13 @@ export default function Dashboard() {
   const { user, logout } = useRole()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const fetcher = async () => {
-    const res = await fetch('/api/orders')
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/orders', {
+      headers: {
+        'Authorization': `Bearer ${session?.access_token}`
+      }
+    })
     if (!res.ok) throw new Error('Failed to fetch orders')
     const { orders } = await res.json()
     return orders || []
@@ -30,8 +36,13 @@ export default function Dashboard() {
 
   const handleResubmit = async (orderId: string) => {
     try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch(`/api/orders/${orderId}/resubmit`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
       })
       if (res.ok) {
         mutate() // Re-fetch orders via SWR

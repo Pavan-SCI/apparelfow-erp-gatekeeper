@@ -82,15 +82,15 @@ export async function GET(request: Request) {
         ]
       }
     } else if (user.role === 'sewing_supervisor') {
-      // Sewing can ONLY see VERIFIED related stats
+      // Sewing can ONLY see VERIFIED and SEWING_IN_PROGRESS related stats
       const { count: readyCount } = await adminClient.from('cutting_orders').select('*', { count: 'exact', head: true }).eq('status', 'VERIFIED')
+      const { count: inProgressCount } = await adminClient.from('cutting_orders').select('*', { count: 'exact', head: true }).eq('status', 'SEWING_IN_PROGRESS')
       
       analytics = {
         title: "Sewing Floor Queue",
         stats: [
           { label: 'Ready for Assembly', value: readyCount || 0, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-          { label: 'In Production', value: 0, color: 'text-blue-600', bg: 'bg-blue-100' }, // Placeholder for future feature
-          { label: 'Completed Today', value: 0, color: 'text-purple-600', bg: 'bg-purple-100' },
+          { label: 'In Production', value: inProgressCount || 0, color: 'text-blue-600', bg: 'bg-blue-100' },
         ]
       }
     }

@@ -69,7 +69,7 @@ export async function GET(request: Request) {
           verifier:users!verification_logs_verifier_id_fkey(full_name)
         )
       `)
-      .eq('status', 'VERIFIED')
+      .in('status', ['VERIFIED', 'SEWING_IN_PROGRESS'])
       .order('updated_at', { ascending: false })
 
     if (ordersError) {

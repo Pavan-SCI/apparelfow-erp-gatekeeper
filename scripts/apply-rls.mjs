@@ -27,13 +27,13 @@ DROP POLICY IF EXISTS "Allow read users" ON users;
 DROP POLICY IF EXISTS "Allow update self" ON users;
 DROP POLICY IF EXISTS "Allow read recipes" ON recipes;
 DROP POLICY IF EXISTS "Allow read recipe_components" ON recipe_components;
-DROP POLICY IF EXISTS "Allow read orders" ON cutting_orders;
+DROP POLICY IF EXISTS "Strict read orders" ON cutting_orders;
 DROP POLICY IF EXISTS "Allow insert orders" ON cutting_orders;
 DROP POLICY IF EXISTS "Allow update orders" ON cutting_orders;
-DROP POLICY IF EXISTS "Allow read items" ON verification_items;
+DROP POLICY IF EXISTS "Strict read items" ON verification_items;
 DROP POLICY IF EXISTS "Allow insert items" ON verification_items;
 DROP POLICY IF EXISTS "Allow update items" ON verification_items;
-DROP POLICY IF EXISTS "Allow read logs" ON verification_logs;
+DROP POLICY IF EXISTS "Strict read logs" ON verification_logs;
 DROP POLICY IF EXISTS "Allow insert logs" ON verification_logs;
 
 -- Apply new strict policies
@@ -44,15 +44,15 @@ CREATE POLICY "Allow read recipes" ON recipes FOR SELECT TO authenticated USING 
 CREATE POLICY "Allow read recipe_components" ON recipe_components FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "Strict read orders" ON cutting_orders FOR SELECT TO authenticated USING (
-  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND status = 'VERIFIED')
+  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND status IN ('VERIFIED', 'SEWING_IN_PROGRESS'))
 );
 
 CREATE POLICY "Strict read items" ON verification_items FOR SELECT TO authenticated USING (
-  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND EXISTS (SELECT 1 FROM cutting_orders WHERE id = verification_items.order_id AND status = 'VERIFIED'))
+  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND EXISTS (SELECT 1 FROM cutting_orders WHERE id = verification_items.order_id AND status IN ('VERIFIED', 'SEWING_IN_PROGRESS')))
 );
 
 CREATE POLICY "Strict read logs" ON verification_logs FOR SELECT TO authenticated USING (
-  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND EXISTS (SELECT 1 FROM cutting_orders WHERE id = verification_logs.order_id AND status = 'VERIFIED'))
+  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND EXISTS (SELECT 1 FROM cutting_orders WHERE id = verification_logs.order_id AND status IN ('VERIFIED', 'SEWING_IN_PROGRESS')))
 );
 `;
 

@@ -7,6 +7,7 @@ import useSWR from 'swr'
 
 export default function SewingDashboard() {
   const [startingOrderId, setStartingOrderId] = useState<string | null>(null)
+  const [startedOrders, setStartedOrders] = useState<Set<string>>(new Set())
   const [viewAuditIds, setViewAuditIds] = useState<Set<string>>(new Set())
 
   const toggleAuditView = (id: string) => {
@@ -19,7 +20,16 @@ export default function SewingDashboard() {
   }
 
   const fetcher = async () => {
-    const res = await fetch('/api/sewing/queue')
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    const res = await fetch('/api/sewing/queue', {
+      headers: {
+        'Authorization': `Bearer ${session?.access_token}`
+      }
+    })
+    
     if (!res.ok) {
       if (res.status === 403) throw new Error('Access denied. Only Sewing Supervisors can view this queue.')
       throw new Error('Failed to load sewing queue.')
@@ -33,14 +43,35 @@ export default function SewingDashboard() {
     refreshInterval: 10000 // Keep queue fresh
   })
 
-  const handleStartAssembly = (orderId: string) => {
+  const handleStartAssembly = async (orderId: string) => {
     setStartingOrderId(orderId)
-    // Simulate starting assembly process
-    setTimeout(() => {
-      alert(`Assembly started for batch ${orderId}! (Demo)`)
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
+      const res = await fetch('/api/sewing/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ orderId })
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'Failed to start assembly')
+      }
+
+      // Mark as started
+      setStartedOrders(prev => new Set(prev).add(orderId))
+      
+      mutate() // Refresh queue immediately
+    } catch (err: any) {
+      alert(err.message)
       setStartingOrderId(null)
-      mutate() // Refresh queue after starting
-    }, 1000)
+    }
   }
 
   if (!orders && !error) {
@@ -55,7 +86,7 @@ export default function SewingDashboard() {
     return (
       <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-200">
         <h3 className="font-bold text-lg mb-2">Access Denied</h3>
-        <p>{error}</p>
+        <p>{error.message}</p>
       </div>
     )
   }
@@ -99,17 +130,32 @@ export default function SewingDashboard() {
                           <ShieldCheck className="w-3 h-3" />
                           QC Passed
                         </span>
+                        {order.status === 'SEWING_IN_PROGRESS' && (
+                          <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-400 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            In Production
+                          </span>
+                        )}
                       </div>
                       <p className="text-slate-500 dark:text-slate-400 text-sm">{order.recipe?.name} (Target: {order.target_qty} units)</p>
                     </div>
                     
                     <button 
                       onClick={() => handleStartAssembly(order.id)}
-                      disabled={startingOrderId === order.id}
-                      className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2 disabled:opacity-70"
+                      disabled={startingOrderId === order.id || startedOrders.has(order.id) || order.status === 'SEWING_IN_PROGRESS'}
+                      className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2 disabled:opacity-70 ${
+                        (startedOrders.has(order.id) || order.status === 'SEWING_IN_PROGRESS')
+                          ? 'bg-emerald-600 text-white' 
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                      }`}
                     >
-                      {startingOrderId === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Scissors className="w-4 h-4" />}
-                      Start Sewing Assembly
+                      {startingOrderId === order.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (startedOrders.has(order.id) || order.status === 'SEWING_IN_PROGRESS') ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <Scissors className="w-4 h-4" />
+                      )}
+                      {(startedOrders.has(order.id) || order.status === 'SEWING_IN_PROGRESS') ? 'Started!' : 'Start Sewing Assembly'}
                     </button>
                   </div>
 
