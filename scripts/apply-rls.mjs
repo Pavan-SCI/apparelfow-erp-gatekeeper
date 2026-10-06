@@ -43,16 +43,17 @@ CREATE POLICY "Allow update self" ON users FOR UPDATE TO authenticated USING (id
 CREATE POLICY "Allow read recipes" ON recipes FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Allow read recipe_components" ON recipe_components FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY "Allow read orders" ON cutting_orders FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Allow insert orders" ON cutting_orders FOR INSERT TO authenticated WITH CHECK (get_auth_role() = 'cutting_supervisor');
-CREATE POLICY "Allow update orders" ON cutting_orders FOR UPDATE TO authenticated USING (get_auth_role() IN ('cutting_supervisor', 'cutting_verifier'));
+CREATE POLICY "Strict read orders" ON cutting_orders FOR SELECT TO authenticated USING (
+  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND status = 'VERIFIED')
+);
 
-CREATE POLICY "Allow read items" ON verification_items FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Allow insert items" ON verification_items FOR INSERT TO authenticated WITH CHECK (get_auth_role() IN ('cutting_supervisor', 'cutting_verifier'));
-CREATE POLICY "Allow update items" ON verification_items FOR UPDATE TO authenticated USING (get_auth_role() = 'cutting_verifier');
+CREATE POLICY "Strict read items" ON verification_items FOR SELECT TO authenticated USING (
+  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND EXISTS (SELECT 1 FROM cutting_orders WHERE id = verification_items.order_id AND status = 'VERIFIED'))
+);
 
-CREATE POLICY "Allow read logs" ON verification_logs FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Allow insert logs" ON verification_logs FOR INSERT TO authenticated WITH CHECK (get_auth_role() = 'cutting_verifier');
+CREATE POLICY "Strict read logs" ON verification_logs FOR SELECT TO authenticated USING (
+  get_auth_role() IN ('cutting_supervisor', 'cutting_verifier') OR (get_auth_role() = 'sewing_supervisor' AND EXISTS (SELECT 1 FROM cutting_orders WHERE id = verification_logs.order_id AND status = 'VERIFIED'))
+);
 `;
 
 async function applyRLS() {

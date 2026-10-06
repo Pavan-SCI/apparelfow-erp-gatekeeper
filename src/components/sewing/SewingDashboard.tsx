@@ -7,6 +7,7 @@ import useSWR from 'swr'
 
 export default function SewingDashboard() {
   const [startingOrderId, setStartingOrderId] = useState<string | null>(null)
+  const [viewAuditId, setViewAuditId] = useState<string | null>(null)
 
   const fetcher = async () => {
     const res = await fetch('/api/sewing/queue')
@@ -103,63 +104,74 @@ export default function SewingDashboard() {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 rounded-xl p-5 border border-gray-100">
-                    {/* Attribution & Analytics */}
-                    <div className="space-y-4">
-                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Gatekeeper Sign-Off</h4>
-                      
-                      <div className="flex flex-col gap-3">
-                        <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-500">Verified By</span>
-                          <span className="text-sm font-bold text-gray-900">{latestLog?.verifier?.full_name || 'Unknown'}</span>
-                        </div>
-                        
-                        <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-500">Verification Time</span>
-                          <span className="text-sm font-bold text-gray-900">
-                            {latestLog ? new Date(latestLog.timestamp).toLocaleString() : 'N/A'}
-                          </span>
-                        </div>
-                        
-                        <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-500">Fabric Wastage Variance</span>
-                          <span className={`text-sm font-bold ${
-                            Number(latestLog?.wastage_pct) > 0 ? 'text-amber-600' : 
-                            Number(latestLog?.wastage_pct) < 0 ? 'text-emerald-600' : 'text-gray-900'
-                          }`}>
-                            {latestLog?.wastage_pct !== undefined ? `${Number(latestLog.wastage_pct).toFixed(2)}%` : 'N/A'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Component Pieces */}
-                    <div className="space-y-4">
-                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Component Breakdown</h4>
-                      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                        <table className="w-full text-left text-sm">
-                          <thead className="bg-gray-50 text-xs uppercase text-gray-500 border-b border-gray-100">
-                            <tr>
-                              <th className="px-4 py-2 font-medium">Component</th>
-                              <th className="px-4 py-2 font-medium text-center">Verified Count</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100">
-                            {order.verification_items?.map((item: any) => (
-                              <tr key={item.id}>
-                                <td className="px-4 py-2.5 text-gray-900 font-medium">{item.component?.component_name}</td>
-                                <td className="px-4 py-2.5 text-center">
-                                  <span className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-bold">
-                                    {item.actual_qty}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                    <button 
+                      onClick={() => setViewAuditId(viewAuditId === order.id ? null : order.id)}
+                      className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
+                    >
+                      {viewAuditId === order.id ? 'Hide Audit Details' : 'View Gatekeeper Audit Notes'}
+                    </button>
                   </div>
+
+                  {viewAuditId === order.id && (
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 rounded-xl p-5 border border-gray-100 animate-in fade-in slide-in-from-top-2">
+                      {/* Attribution & Analytics */}
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Gatekeeper Sign-Off</h4>
+                        
+                        <div className="flex flex-col gap-3">
+                          <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-500">Verified By</span>
+                            <span className="text-sm font-bold text-gray-900">{latestLog?.verifier?.full_name || 'Unknown'}</span>
+                          </div>
+                          
+                          <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-500">Verification Time</span>
+                            <span className="text-sm font-bold text-gray-900">
+                              {latestLog ? new Date(latestLog.timestamp).toLocaleString() : 'N/A'}
+                            </span>
+                          </div>
+                          
+                          <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-500">Fabric Wastage Variance</span>
+                            <span className={`text-sm font-bold ${
+                              Number(latestLog?.wastage_pct) > 0 ? 'text-amber-600' : 
+                              Number(latestLog?.wastage_pct) < 0 ? 'text-emerald-600' : 'text-gray-900'
+                            }`}>
+                              {latestLog?.wastage_pct !== undefined ? `${Number(latestLog.wastage_pct).toFixed(2)}%` : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Component Pieces */}
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Component Breakdown</h4>
+                        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                          <table className="w-full text-left text-sm">
+                            <thead className="bg-gray-50 text-xs uppercase text-gray-500 border-b border-gray-100">
+                              <tr>
+                                <th className="px-4 py-2 font-medium">Component</th>
+                                <th className="px-4 py-2 font-medium text-center">Verified Count</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                              {order.verification_items?.map((item: any) => (
+                                <tr key={item.id}>
+                                  <td className="px-4 py-2.5 text-gray-900 font-medium">{item.component?.component_name}</td>
+                                  <td className="px-4 py-2.5 text-center">
+                                    <span className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-bold">
+                                      {item.actual_qty}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                 </div>
               </div>

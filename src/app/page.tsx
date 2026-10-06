@@ -11,6 +11,8 @@ import VerifierDashboard from '@/components/verification/VerifierDashboard'
 import SewingDashboard from '@/components/sewing/SewingDashboard'
 import RoleSwitcher from '@/components/auth/RoleSwitcher'
 
+import AnalyticsCards from '@/components/AnalyticsCards'
+
 export default function Dashboard() {
   const { user } = useRole()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -61,6 +63,8 @@ export default function Dashboard() {
            </div>
         </div>
       </header>
+
+      <AnalyticsCards />
 
       {user.role === 'cutting_supervisor' && (
         <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-blue-900/5 border border-white p-8 mb-10 transition-all hover:shadow-2xl hover:shadow-blue-900/10">
