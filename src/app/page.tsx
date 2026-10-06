@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRole } from '@/context/RoleContext'
-import CreateOrderModal from '@/components/CreateOrderModal'
+import CreateOrderModal from '@/components/cutting/CreateOrderModal'
 import { Plus, Scissors, CheckCircle2, Factory } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import VerifierDashboard from '@/components/VerifierDashboard'
-import SewingDashboard from '@/components/SewingDashboard'
+import VerifierDashboard from '@/components/verification/VerifierDashboard'
+import SewingDashboard from '@/components/sewing/SewingDashboard'
+import RoleSwitcher from '@/components/auth/RoleSwitcher'
 
 export default function Dashboard() {
   const { user } = useRole()

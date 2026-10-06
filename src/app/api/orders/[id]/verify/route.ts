@@ -7,10 +7,26 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     const orderId = params.id
     
     const supabase = await createClient()
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+    
+    // Support Bearer token from headers (for easy Postman testing) or fallback to cookies
+    const authHeader = request.headers.get('Authorization')
+    let authUser = null
+    let authError = null
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1]
+      const result = await supabase.auth.getUser(token)
+      authUser = result.data.user
+      authError = result.error
+    } else {
+      const result = await supabase.auth.getUser()
+      authUser = result.data.user
+      authError = result.error
+    }
 
     if (authError || !authUser) {
-      return NextResponse.json({ error: 'Unauthorized: No active session' }, { status: 401 })
+      console.error("Auth Error:", authError?.message || "No user found")
+      return NextResponse.json({ error: `Unauthorized: ${authError?.message || 'No active session'}` }, { status: 401 })
     }
 
     const userId = authUser.id

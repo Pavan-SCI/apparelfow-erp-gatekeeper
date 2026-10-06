@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { RoleProvider } from '@/context/RoleContext'
-import RoleSwitcher from '@/components/RoleSwitcher'
+import RoleSwitcher from '@/components/auth/RoleSwitcher'
 
 const inter = Inter({ subsets: ['latin'] })
 
