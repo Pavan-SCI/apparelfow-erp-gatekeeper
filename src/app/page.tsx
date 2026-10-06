@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRole } from '@/context/RoleContext'
 import CreateOrderModal from '@/components/cutting/CreateOrderModal'
 import { Plus, Scissors, CheckCircle2, Factory } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import useSWR from 'swr'
 import VerifierDashboard from '@/components/verification/VerifierDashboard'
 import SewingDashboard from '@/components/sewing/SewingDashboard'
 import RoleSwitcher from '@/components/auth/RoleSwitcher'
@@ -12,22 +13,16 @@ import RoleSwitcher from '@/components/auth/RoleSwitcher'
 export default function Dashboard() {
   const { user } = useRole()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [orders, setOrders] = useState<any[]>([])
-  const supabase = createClient()
-
-  const fetchOrders = async () => {
-    const { data } = await fetch('/api/orders').then(res => res.json())
-    if (data) setOrders(data)
-    else {
-      // Direct supabase fetch as fallback if API route has issues parsing
-      const res = await supabase.from('cutting_orders').select(`
-        *,
-        recipe:recipes(name, recipe_code),
-        creator:users!cutting_orders_created_by_fkey(full_name)
-      `).order('created_at', { ascending: false })
-      if (res.data) setOrders(res.data)
-    }
+  const fetcher = async () => {
+    const res = await fetch('/api/orders')
+    if (!res.ok) throw new Error('Failed to fetch orders')
+    const { orders } = await res.json()
+    return orders || []
   }
+
+  const { data: orders = [], mutate } = useSWR('cutting-orders', fetcher, {
+    revalidateOnFocus: true
+  })
 
   const handleResubmit = async (orderId: string) => {
     try {
@@ -35,7 +30,7 @@ export default function Dashboard() {
         method: 'POST'
       })
       if (res.ok) {
-        fetchOrders()
+        mutate() // Re-fetch orders via SWR
       } else {
         alert("Failed to resubmit order.")
       }
@@ -43,10 +38,6 @@ export default function Dashboard() {
       alert("Error resubmitting order.")
     }
   }
-
-  useEffect(() => {
-    fetchOrders()
-  }, [])
 
   if (!user) {
     return (
@@ -167,7 +158,7 @@ export default function Dashboard() {
       <CreateOrderModal 
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)} 
-        onSuccess={fetchOrders}
+        onSuccess={() => mutate()}
       />
     </div>
   )

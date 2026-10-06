@@ -48,7 +48,7 @@ CREATE POLICY "Allow insert orders" ON cutting_orders FOR INSERT TO authenticate
 CREATE POLICY "Allow update orders" ON cutting_orders FOR UPDATE TO authenticated USING (get_auth_role() IN ('cutting_supervisor', 'cutting_verifier'));
 
 CREATE POLICY "Allow read items" ON verification_items FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Allow insert items" ON verification_items FOR INSERT TO authenticated WITH CHECK (get_auth_role() = 'cutting_supervisor');
+CREATE POLICY "Allow insert items" ON verification_items FOR INSERT TO authenticated WITH CHECK (get_auth_role() IN ('cutting_supervisor', 'cutting_verifier'));
 CREATE POLICY "Allow update items" ON verification_items FOR UPDATE TO authenticated USING (get_auth_role() = 'cutting_verifier');
 
 CREATE POLICY "Allow read logs" ON verification_logs FOR SELECT TO authenticated USING (true);

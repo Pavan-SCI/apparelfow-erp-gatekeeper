@@ -34,6 +34,11 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
   const supabase = createClient()
 
   useEffect(() => {
+    const fetchRecipes = async () => {
+      const { data } = await supabase.from('recipes').select('*')
+      if (data) setRecipes(data)
+    }
+
     if (isOpen) {
       fetchRecipes()
       // Reset state
@@ -47,22 +52,17 @@ export default function CreateOrderModal({ isOpen, onClose, onSuccess }: { isOpe
   }, [isOpen])
 
   useEffect(() => {
+    const fetchComponents = async (recipeId: string) => {
+      const { data } = await supabase.from('recipe_components').select('*').eq('recipe_id', recipeId)
+      if (data) setComponents(data)
+    }
+
     if (selectedRecipeId) {
       fetchComponents(selectedRecipeId)
     } else {
       setComponents([])
     }
   }, [selectedRecipeId])
-
-  const fetchRecipes = async () => {
-    const { data } = await supabase.from('recipes').select('*')
-    if (data) setRecipes(data)
-  }
-
-  const fetchComponents = async (recipeId: string) => {
-    const { data } = await supabase.from('recipe_components').select('*').eq('recipe_id', recipeId)
-    if (data) setComponents(data)
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

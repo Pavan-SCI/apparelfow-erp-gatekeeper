@@ -23,6 +23,25 @@ export default function VerificationTerminalModal({
   const [rejectionNote, setRejectionNote] = useState('')
 
   useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/orders/${order.id}/verify`)
+        const data = await res.json()
+        if (data.items) {
+          const initializedItems = data.items.map((item: any) => ({
+            ...item,
+            actual_qty: ''
+          }))
+          setItems(initializedItems)
+        }
+      } catch (err) {
+        setError('Failed to fetch verification items.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     if (isOpen && order) {
       fetchItems()
       setRejectMode(false)
@@ -30,26 +49,6 @@ export default function VerificationTerminalModal({
       setError('')
     }
   }, [isOpen, order])
-
-  const fetchItems = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/orders/${order.id}/verify`)
-      const data = await res.json()
-      if (data.items) {
-        // Initialize actual_qty with expected_qty for faster counting (or 0 depending on SOP, we'll use 0 for strict counting)
-        const initializedItems = data.items.map((item: any) => ({
-          ...item,
-          actual_qty: ''
-        }))
-        setItems(initializedItems)
-      }
-    } catch (err) {
-      setError('Failed to fetch verification items.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleQtyChange = (itemId: string, value: string) => {
     setItems(prev => prev.map(item => 

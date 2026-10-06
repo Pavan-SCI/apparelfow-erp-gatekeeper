@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
@@ -89,8 +91,21 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const supabase = await createClient()
-  
-  const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+  const authHeader = request.headers.get('Authorization')
+  let authUser = null
+  let authError = null
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1]
+    const result = await supabase.auth.getUser(token)
+    authUser = result.data.user
+    authError = result.error
+  } else {
+    const result = await supabase.auth.getUser()
+    authUser = result.data.user
+    authError = result.error
+  }
+
   if (authError || !authUser) {
     return NextResponse.json({ error: 'Unauthorized: No active session' }, { status: 401 })
   }
